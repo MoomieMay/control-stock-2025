@@ -1,0 +1,137 @@
+.d-flex {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+main {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.sidebar {
+    height: 100%;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: width 0.3s;
+}
+.sidebar.sidebar.collapsed {
+    height: 100%;
+    width: 75px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: width 0.3s;
+}
+
+.sidebar-top {
+    height: 100px;
+    opacity: 0.7;
+}
+
+.sidebar-middle {
+    flex-grow: 1;
+}
+
+.sidebar-bottom {
+    border-top: 1px inset gray;
+}
+
+.logo {
+    height: 60px;
+    padding: 5px;
+    margin-top: 10px;
+}
+
+.nav-link {
+    color: whitesmoke;
+    padding: auto;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+
+.nav-link:hover {
+    color: #006066;
+    border-radius: 5px;
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background-color: whitesmoke;
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    height: 100px;
+}
+
+.header-logo {
+    height: 50px;
+    padding-left: 10px;
+}
+
+.text-end {
+    text-align: end;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+    }
+
+    .sidebar.collapsed {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+    }
+
+    .sidebar.collapsed {
+        width: 250px;
+    }
+}
+
+.accordion-button {
+    background-color: whitesmoke;
+}
+
+.accordion-item .accordion-header .accordion-button:not(.collapsed) {
+    background-color:rgb(77,166,167); /* Color de fondo cuando está expandido */
+    color: whitesmoke; /* Color de texto cuando está expandido */
+    font-weight: bold;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+  }
+
+  .nav-link.active {
+    color: #006066;
+    font-weight: bold; /* REVISAR */
+  }
