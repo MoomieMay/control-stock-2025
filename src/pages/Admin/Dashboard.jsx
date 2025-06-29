@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   const fetchDatos = async () => {
     let { data, error } = await supabase
-      .from('materiales')  // Ejemplo tabla materiales, cambiala por la que uses
+      .from('bienes')  // Ejemplo tabla materiales, cambiala por la que uses
       .select('*')
 
     if (error) {
