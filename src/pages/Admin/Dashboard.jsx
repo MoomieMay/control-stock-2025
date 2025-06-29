@@ -1,6 +1,7 @@
 // src/pages/Admin/Dashboard.jsx
 import React, { useEffect, useState } from 'react'
 import { Link, Routes, Route, useNavigate } from 'react-router-dom'
+import { FaHome, FaFileAlt, FaInfoCircle, FaSignOutAlt, FaBars, FaQuestionCircle } from 'react-icons/fa'
 import Inicio from './Inicio'
 import ReportesAdmin from './Reportes'
 import Instructivos from './Instructivos'
@@ -27,7 +28,7 @@ const Dashboard = () => {
 
   const fetchDatos = async () => {
     let { data, error } = await supabase
-      .from('bienes')  // Ejemplo tabla materiales, cambiala por la que uses
+      .from('bienes')  
       .select('*')
 
     if (error) {
@@ -41,11 +42,11 @@ const Dashboard = () => {
     <div className="d-flex">
       <nav className={`sidebar bg-dark ${isCollapsed ? 'collapsed' : ''}`}>
         {/* sidebar top */}
-        <div className="sidebar-top p-3 d-flex align-items-center justify-content-start">
+        <div className="sidebar-top p-3 ms-3 d-flex align-items-center justify-content-start">
           <div className="d-flex align-items-center">
-            <button onClick={toggleSidebar} className="btn btn-dark">
-              ☰
-            </button>
+            <div className="d-flex align-items-center cursor-pointer" onClick={toggleSidebar}>
+            <FaBars className="text-white" size={20} />
+          </div>
           </div>
           {!isCollapsed && <h5 className="m-0 ms-3 text-white fw-bolder">Menu</h5>}
         </div>
@@ -54,36 +55,41 @@ const Dashboard = () => {
           <ul className="nav flex-column">
             <li className="nav-item">
               <Link className="nav-link text-white" to="/admin/">
-                Inicio
+                <FaHome className="me-2" />
+                <span className={isCollapsed ? 'd-none' : ''}>Inicio</span>
               </Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link text-white" to="/admin/reportes">
-                Reportes
+                <FaFileAlt className="me-2" />
+                <span className={isCollapsed ? 'd-none' : ''}>Reportes</span>
               </Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link text-white" to="/admin/instructivos">
-                Instructivos
+                <FaInfoCircle className="me-2" />
+                <span className={isCollapsed ? 'd-none' : ''}>Instructivos</span>
               </Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link text-white" to="/admin/ayuda">
-                Ayuda
+                <FaQuestionCircle className="me-2" />
+                <span className={isCollapsed ? 'd-none' : ''}>Ayuda</span>
               </Link>
             </li>
           </ul>
         </div>
         {/* sidebar bottom */}
-        <div className="sidebar-bottom p-3 ms-3">
+        <div className="sidebar-bottom py-3 ms-1">
           <button
-            className="btn btn-danger"
+            className="btn btn-uaco btn-logout"
             onClick={async () => {
               await supabase.auth.signOut()
               navigate('/login')
             }}
           >
-            Salir
+            <FaSignOutAlt />
+            <span className={isCollapsed ? 'd-none' : ''}>Salir</span>
           </button>
         </div>
       </nav>
