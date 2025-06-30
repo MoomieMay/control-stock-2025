@@ -35,14 +35,71 @@ export async function obtenerBienes() {
 export async function agregarBien(bien) {
   const { data, error } = await supabase
     .from('bienes')
-    .insert([bien])
+    .insert([{
+      id_nomenclador: bien.id_nomenclador,
+      cantidad_bien: bien.cantidad_bien,
+      cantidad_minima: bien.cantidad_minima,
+      tipo_pedidos: bien.tipo_pedidos,
+      id_deposito: bien.id_deposito,
+    }]).select().single();
+
+  if (error) {
+    console.error('Error al agregar bien:', error)
+    return null;
+  }
+
+  return {data, error};
+}
+// Esta función agrega un nuevo movimiento a la tabla 'movimientos' cuando se agrega un bien.
+export async function agregarMovimiento(bien) {
+// 1. Obtener nombre del depósito
+  const { data: depositoData, error: depositoError } = await supabase
+    .from('depositos')
+    .select('nombre_deposito')
+    .eq('id_deposito', bien.id_deposito)
+    .single();
+
+  if (depositoError || !depositoData) {
+    console.error('Error al obtener el nombre del depósito:', depositoError);
+    return null;
+  }
+
+  const nombreDeposito = depositoData.nombre_deposito;
+// 2. Obtener id del proveedor
+  const { data: proveedorData, error: proveedorError } = await supabase
+    .from('proveedores')
+    .select('id_proveedor')
+    .eq('cuit_proveedor', bien.cuit_proveedor)
+    .single();
+
+  if (proveedorError || !proveedorData) {
+    console.error('Error al obtener el id del proveedor:', proveedorError);
+    return null;
+  }
+
+  const idProveedor = proveedorData.id_proveedor;
+
+  const { data, error } = await supabase
+    .from('movimientos')
+    .insert([{
+      id_nomenclador: bien.id_nomenclador,
+      cantidad_movimiento: bien.cantidad_bien,
+      fecha_movimiento: new Date().toISOString().split('T')[0],
+      tipo_movimiento: 'Ingreso',
+      origen: 'Proveedor',
+      destino: nombreDeposito,
+      id_usuario: null,
+      id_proveedor: idProveedor,
+      nro_factura: bien.numero_factura,
+    }]).select()
+    .single();
 
   if (error) {
     console.error('Error al agregar bien:', error)
     return null
   }
 
-  return data[0]
+  return {data, error};
 }
 
 // Esta función actualiza la cantidad de un bien existente en la tabla 'bienes'.

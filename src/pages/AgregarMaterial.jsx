@@ -4,7 +4,7 @@ import { FaPlus } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { supabase } from '../services/supabaseClient';
-import { actualizarBien, agregarBien, existeCantMinima } from '../services/bienes';
+import { actualizarBien, agregarBien, agregarMovimiento, existeCantMinima } from '../services/bienes';
 
 const Agregar = () => {
   const navigateTo = useNavigate();
@@ -129,42 +129,66 @@ const Agregar = () => {
   // Maneja el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const { data: existingItem, error: checkError } = await supabase
-        .from('bienes').select('id_nomenclador, id_deposito').eq('id_nomenclador', parseInt(idNomenclador))
+        .from('bienes')
+        .select('id_nomenclador, id_deposito')
+        .eq('id_nomenclador', parseInt(idNomenclador))
         .eq('id_deposito', parseInt(deposito));
+
       if (checkError) {
         toast.error('Error al verificar el bien existente.');
-      } else if (existingItem.length > 0) {
-        setDatosPendientes({
-          id_nomenclador: parseInt(idNomenclador),
-          cantidad_bien: parseInt(cantidad),
-          cantidad_minima: parseInt(cantidadM),
-          tipo_pedidos: tipoCompra,
-          id_deposito: deposito
-        });
+        return;
+      }
+
+      const bienPayload = {
+        id_nomenclador: parseInt(idNomenclador),
+        cantidad_bien: parseInt(cantidad),
+        cantidad_minima: parseInt(cantidadM),
+        tipo_pedidos: tipoCompra,
+        id_deposito: parseInt(deposito),
+        tipo_movimiento: 'Ingreso',
+        cuit_proveedor: cuit,
+        numero_factura: factura,
+      };
+
+      if (existingItem && existingItem.length > 0) {
+        setDatosPendientes(bienPayload);
         setShowModal(true);
       } else {
-        setDatosNuevos({
-          id_nomenclador: parseInt(idNomenclador),
-          cantidad_bien: parseInt(cantidad),
-          cantidad_minima: parseInt(cantidadM),
-          tipo_pedidos: tipoCompra,
-          id_deposito: deposito
-        });
-        const { error } = await agregarBien(datosNuevos);
-
-        if (error) {
+        const { data: bienInsertado, error: errorBien } = await agregarBien(bienPayload);
+        if (errorBien || !bienInsertado) {
           toast.error('Error al agregar el ítem.');
-          console.error(error);
-        } else {
-          toast.success('Ítem agregado correctamente.', {
-            onClose: () => navigateTo('/admin')
-          });
-          limpiarFormulario();
+          return;
         }
+
+        const { data: movInsertado, error: errorMov } = await agregarMovimiento({
+          ...bienPayload,
+          id_nomenclador: bienInsertado.id_nomenclador,
+          id_deposito: bienInsertado.id_deposito
+        });
+
+        if (errorMov || !movInsertado) {
+          // Rollback manual: eliminar el bien insertado
+          await supabase
+            .from('bienes')
+            .delete()
+            .eq('id_nomenclador', bienInsertado.id_nomenclador)
+            .eq('id_deposito', bienInsertado.id_deposito);
+
+          toast.error('Se agregó el bien, pero falló el movimiento. Se canceló el ingreso.');
+          return;
+        }
+
+        toast.success('Ítem agregado correctamente.', {
+          onClose: () => navigateTo('/admin'),
+        });
+        limpiarFormulario();
       }
-    } catch (error) {
+
+    } catch (e) {
+      console.error('Error inesperado:', e);
       toast.error('Error inesperado al agregar el ítem.');
     }
   };
@@ -200,6 +224,7 @@ const Agregar = () => {
   const actBien = async (datos) => {
     try {
       actualizarBien(datos);
+      agregarMovimiento(datos);
     }
     catch (error) {
       toast.error('Error al actualizar el ítem.');
