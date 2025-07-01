@@ -11,15 +11,26 @@ import Entregar from '../EntregarMaterial'
 import Agregar from '../AgregarMaterial'
 import Header from '../../components/Header'
 import { supabase } from '../../services/supabaseClient'
-import '../../styles/Dashboard.css' 
+import '../../styles/Dashboard.css'
 
 const Dashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [datos, setDatos] = useState([])
   const navigate = useNavigate()
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
   const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed)
+    if (!isMobile) {
+      setIsCollapsed(!isCollapsed)
+    }
   }
 
   useEffect(() => {
@@ -28,7 +39,7 @@ const Dashboard = () => {
 
   const fetchDatos = async () => {
     let { data, error } = await supabase
-      .from('bienes')  
+      .from('bienes')
       .select('*')
 
     if (error) {
@@ -40,13 +51,16 @@ const Dashboard = () => {
 
   return (
     <div className="d-flex">
-      <nav className={`sidebar bg-dark ${isCollapsed ? 'collapsed' : ''}`}>
+      <nav
+        className={`sidebar bg-dark ${isMobile ? '' : isCollapsed ? 'collapsed' : ''
+          }`}
+      >
         {/* sidebar top */}
         <div className="sidebar-top p-3 ms-3 d-flex align-items-center justify-content-start">
           <div className="d-flex align-items-center">
             <div className="d-flex align-items-center cursor-pointer" onClick={toggleSidebar}>
-            <FaBars className="text-white" size={20} />
-          </div>
+              <FaBars className="text-white" size={20} />
+            </div>
           </div>
           {!isCollapsed && <h5 className="m-0 ms-3 text-white fw-bolder">Menu</h5>}
         </div>
@@ -94,7 +108,13 @@ const Dashboard = () => {
         </div>
       </nav>
 
-      <div className="main-content d-flex flex-column flex-grow-1">
+      {/* Overlay (solo visible en móviles cuando está expandido) */}
+      {isMobile && isCollapsed && (
+        <div className="overlay active" onClick={() => setIsCollapsed(false)}></div>
+      )}
+
+
+      <div className={`main-content d-flex flex-column flex-grow-1 ${isMobile && isCollapsed ? 'shifted' : ''}`}>
         <Header username="Administrador" />
         <main className="p-4 flex-grow-1">
           <Routes>

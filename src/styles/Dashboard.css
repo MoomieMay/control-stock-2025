@@ -124,25 +124,64 @@ main {
     text-align: end;
 }
 
+/* Sidebar estilo móvil */
 @media (max-width: 768px) {
     .sidebar {
-        width: 80px;
+        width: 60px !important;
     }
 
-    .sidebar.collapsed {
-        width: 250px;
+    .sidebar.open-mobile {
+        width: 200px !important;
+    }
+
+
+    .sidebar-top h5,
+    .nav-link span,
+    .btn-logout span {
+        display: none !important;
+    }
+
+    .sidebar-top{
+        margin-left: 0px !important;
+    }
+
+    .sidebar.open-mobile .sidebar-top h5,
+    .sidebar.open-mobile .nav-link span,
+    .sidebar.open-mobile .btn-logout span {
+        display: inline;
+    }
+
+    .sidebar-middle ul li a{
+        padding-left: 5px !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
     }
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        width: 80px;
+@media (max-width: 480px) {
+    .sidebar.open-mobile {
+        width: 150px !important;
     }
 
-    .sidebar.collapsed {
-        width: 250px;
+    .main-content.shifted {
+        margin-left: 150px !important;
+    }
+
+    .sidebar .nav-link {
+        font-size: 0.85rem;
+    }
+
+    .sidebar-top h5 {
+        font-size: 1rem;
     }
 }
+
+
+
+
 
 .accordion-button {
     background-color: whitesmoke;
