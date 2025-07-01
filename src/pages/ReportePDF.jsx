@@ -80,7 +80,7 @@ const Ingreso = ({ data }) => (
     {/* Tabla de datos */}
     <View style={styles.table}>
       <Text style={styles.tableHeader}>Fecha</Text>
-      <Text style={styles.tableHeader}>Item</Text>
+      <Text style={styles.tableHeader}>Nomenclador</Text>
       <Text style={styles.tableHeader}>Cantidad</Text>
       <Text style={styles.tableHeader}>Deposito</Text>
       <Text style={styles.tableHeader}>Proveedor</Text>
@@ -88,12 +88,12 @@ const Ingreso = ({ data }) => (
     </View>
     {data.data.map((item, index) => (
       <View style={styles.table} key={index}>
-        <Text style={styles.cell}>{formatDate(item.fecha_ingreso)}</Text>
-        <Text style={styles.cell}>{item.nombre_bien}</Text>
-        <Text style={styles.cell}>{item.cantidad_ingresada}</Text>
-        <Text style={styles.cell}>{item.destino_ingreso}</Text>
+        <Text style={styles.cell}>{formatDate(item.fecha_movimiento)}</Text>
+        <Text style={styles.cell}>{item.nomenclador}</Text>
+        <Text style={styles.cell}>{item.cantidad_movimiento}</Text>
+        <Text style={styles.cell}>{item.destino}</Text>
         <Text style={styles.cell}>{item.nombre_proveedor}</Text>
-        <Text style={styles.cell}>{item.factura}</Text>
+        <Text style={styles.cell}>{item.nro_factura}</Text>
       </View>
     ))}
   </View>
@@ -111,18 +111,20 @@ const Entrega = ({ data }) => (
     {/* Tabla de datos */}
     <View style={styles.table}>
       <Text style={styles.tableHeader}>Fecha</Text>
-      <Text style={styles.tableHeader}>Item</Text>
+      <Text style={styles.tableHeader}>Nomenclador</Text>
       <Text style={styles.tableHeader}>Origen</Text>
+      <Text style={styles.tableHeader}>Destino</Text>
       <Text style={styles.tableHeader}>Cantidad</Text>
       <Text style={styles.tableHeader}>Receptor</Text>
     </View>
     {data.data.map((item, index) => (
       <View style={styles.table} key={index}>
-        <Text style={styles.cell}>{formatDate(item.fecha_entrega)}</Text>
-        <Text style={styles.cell}>{item.nombre_bien}</Text>
-        <Text style={styles.cell}>{item.deposito}</Text>
-        <Text style={styles.cell}>{item.cantidad_entregada}</Text>
-        <Text style={styles.cell}>{item.nombre_usuarioE}</Text>
+        <Text style={styles.cell}>{formatDate(item.fecha_movimiento)}</Text>
+        <Text style={styles.cell}>{item.nomenclador}</Text>
+        <Text style={styles.cell}>{item.origen}</Text>
+        <Text style={styles.cell}>{item.destino}</Text>
+        <Text style={styles.cell}>{item.cantidad_movimiento}</Text>
+        <Text style={styles.cell}>{item.usuario.nombre_usuario}</Text>
       </View>
     ))}
   </View>
@@ -140,18 +142,18 @@ const Transferencia = ({ data }) => (
     {/* Tabla de datos */}
     <View style={styles.table}>
       <Text style={styles.tableHeader}>Fecha</Text>
-      <Text style={styles.tableHeader}>Item</Text>
+      <Text style={styles.tableHeader}>Nomenclador</Text>
       <Text style={styles.tableHeader}>Origen</Text>
       <Text style={styles.tableHeader}>Destino</Text>
       <Text style={styles.tableHeader}>Cantidad</Text>
     </View>
     {data.data.map((item, index) => (
       <View style={styles.table} key={index}>
-        <Text style={styles.cell}>{formatDate(item.fecha_transferencia)}</Text>
-        <Text style={styles.cell}>{item.nombre_bien}</Text>
-        <Text style={styles.cell}>{item.origen_transferencia}</Text>
-        <Text style={styles.cell}>{item.destino_transferencia}</Text>
-        <Text style={styles.cell}>{item.cantidad_transferida}</Text>
+        <Text style={styles.cell}>{formatDate(item.fecha_movimiento)}</Text>
+        <Text style={styles.cell}>{item.nomenclador}</Text>
+        <Text style={styles.cell}>{item.origen}</Text>
+        <Text style={styles.cell}>{item.destino}</Text>
+        <Text style={styles.cell}>{item.cantidad_movimiento}</Text>
       </View>
     ))}
   </View>
@@ -186,20 +188,19 @@ const Deposito = ({ data }) => (
 );
 
 const ReportePDF = ({ data }) => {
-  console.log('PDF: ',data.data);
   return (
-  <Document>
-    <Page style={styles.page}>
-      <View style={styles.section}>
-        <Image src="/logo.png" style={styles.logo} />
-        {data.datafront.tipo === 'ingreso' && <Ingreso data={data} />}
-        {data.datafront.tipo === 'entrega' && <Entrega data={data} />}
-        {data.datafront.tipo === 'transferencia' && <Transferencia data={data} />}
-        {data.datafront.tipo ===  'deposito' && <Deposito data={data}/>} 
-      </View>
-    </Page>
-  </Document>
-);
+    <Document>
+      <Page style={styles.page}>
+        <View style={styles.section}>
+          <Image src="/logo.png" style={styles.logo} />
+          {data.datafront.tipo === 'Ingreso' && <Ingreso data={data} />}
+          {data.datafront.tipo === 'Entrega' && <Entrega data={data} />}
+          {data.datafront.tipo === 'Transferencia' && <Transferencia data={data} />}
+          {data.datafront.tipo === 'Deposito' && <Deposito data={data} />}
+        </View>
+      </Page>
+    </Document>
+  );
 };
 
 export default ReportePDF;

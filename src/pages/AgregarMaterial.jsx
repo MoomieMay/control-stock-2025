@@ -73,6 +73,7 @@ const Agregar = () => {
 
       if (error) {
         console.error('Error al verificar cantidad mínima:', error);
+        toast.error('Error al verificar cantidad mínima:');
         setCantidadM('');
         setIsCantidadMDisabled(false);
       } else if (data) {
@@ -84,6 +85,7 @@ const Agregar = () => {
       }
     } catch (err) {
       console.error('Error al verificar cantidad mínima:', err);
+      toast.error('Error al verificar cantidad mínima:');
       setCantidadM('');
       setIsCantidadMDisabled(false);
     }
@@ -122,7 +124,6 @@ const Agregar = () => {
   const handleDepositoChange = async (e) => {
     const nuevoDeposito = e.target.value;
     setDeposito(nuevoDeposito);
-
     comprobarCantidadMinima(nuevoDeposito, idNomenclador);
   };
 
