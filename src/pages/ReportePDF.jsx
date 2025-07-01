@@ -44,13 +44,12 @@ const styles = StyleSheet.create({
     borderColor: '#000',
   },
   tableHeader: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f2f2f2',
     fontSize: 12,
     flex: 1,
     textAlign: 'center',
     padding: 5,
-    borderWidth: 1,
-    borderColor: '#000',
+
   },
   cell: {
     fontSize: 11,
@@ -81,10 +80,10 @@ const Ingreso = ({ data }) => (
     <View style={styles.table}>
       <Text style={styles.tableHeader}>Fecha</Text>
       <Text style={styles.tableHeader}>Nomenclador</Text>
-      <Text style={styles.tableHeader}>Cantidad</Text>
+      <Text style={styles.tableHeader}>Cant.</Text>
       <Text style={styles.tableHeader}>Deposito</Text>
       <Text style={styles.tableHeader}>Proveedor</Text>
-      <Text style={styles.tableHeader}>Nro de Factura</Text>
+      <Text style={styles.tableHeader}>N° Factura</Text>
     </View>
     {data.data.map((item, index) => (
       <View style={styles.table} key={index}>
