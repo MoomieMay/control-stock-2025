@@ -5,6 +5,7 @@ import { supabase } from '../services/supabaseClient';
 import { Document, Page, Text, View, StyleSheet, Image, BlobProvider } from '@react-pdf/renderer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { entregarBien } from '../services/entregas';
 
 const Entregar = () => {
   const location = useLocation();
@@ -18,43 +19,45 @@ const Entregar = () => {
   const [itemsSugeridos, setItemsSugeridos] = useState([]);
   const [generarPDF, setGenerarPDF] = useState(false);
 
+  const formularioValido = cantidad && IDUsuarioE && nombreReceptor;
+
   // Enviar entrega a backend usando supabase
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!item || !IDUsuarioE) {
-      toast.error('Faltan datos para procesar la entrega');
+
+    if (!cantidad || !nombreReceptor || !legajo) {
+      toast.error('Por favor, completa todos los campos antes de entregar.');
       return;
     }
-    const { data, error } = await supabase
-      .from('entregas') // Cambia por tu tabla de entregas
-      .insert([{
-        cantidad_entregada: cantidad,
-        destinatario: nombreReceptor,
-        id_bien: item.ID_bien,
-        id_usuario_entrega: IDUsuarioE,
-        deposito_origen: item.nombre_deposito,
-        fecha_entrega: new Date().toISOString()
-      }]);
+    console.log(item)
+    const result = await entregarBien({
+      nomenclador: item.nomenclador,
+      cantidad_entregada: parseInt(cantidad),
+      nro_factura: 'interno',
+      nombre_deposito: item.nombre_deposito,
+      id_bien: parseInt(item.ID_bien),
+      cantidad_bien: parseInt(item.cantidad_bien),
+      legajo_usuario: parseInt(legajo),
+    });
 
-    if (error) {
-      console.error(error);
-      toast.error('Error registrando la entrega');
-    } else {
-      toast.success('Entrega registrada con éxito');
+    if (result.success) {
+      toast.success('Entrega registrada con éxito.');
       setGenerarPDF(true);
+    } else {
+      toast.error(result.error || 'Error al registrar la entrega.');
     }
   };
 
-  // Buscar usuarios receptores por nombre
+  // Buscar usuarios receptores por legajo
   const buscarUsuarios = async (nombre) => {
     if (!nombre) {
       setItemsSugeridos([]);
       return;
     }
     const { data, error } = await supabase
-      .from('usuarios') // Cambia por tu tabla de usuarios receptores
-      .select('ID_usuarioE, nombre_usuarioE, legajo_usuarioE')
-      .ilike('nombre_usuarioE', `%${nombre}%`)
+      .from('usuario_entrega') // Cambia por tu tabla de usuarios receptores
+      .select('id_usuarioe, nombre_usuario, legajo')
+      .ilike('nombre_usuario', `%${nombre}%`)
       .limit(5);
 
     if (error) {
@@ -65,16 +68,23 @@ const Entregar = () => {
     }
   };
 
-  const handleNombreReceptorChange = (e) => {
+  const handleNombreChange = (e) => {
     const valor = e.target.value;
     setNombreReceptor(valor);
+    if (!valor) {
+      // Si el campo se borra, limpiar legajo y usuario
+      setLegajo('');
+      setIDUsuarioE('');
+      setItemsSugeridos([]);
+      return;
+    }
     buscarUsuarios(valor);
   };
 
   const seleccionarUsuario = (usuario) => {
-    setNombreReceptor(usuario.nombre_usuarioE);
-    setLegajo(usuario.legajo_usuarioE);
-    setIDUsuarioE(usuario.ID_usuarioE);
+    setNombreReceptor(usuario.nombre_usuario);
+    setLegajo(usuario.legajo);
+    setIDUsuarioE(usuario.id_usuarioe);
     setItemsSugeridos([]);
   };
 
@@ -192,12 +202,12 @@ const Entregar = () => {
             Legajo Receptor
           </label>
           <input
-            disabled
             type="text"
             className="form-control"
             id="legajo"
             value={legajo}
-            readOnly
+            required
+            disabled
           />
         </div>
         <div className="col-md-6 mb-3">
@@ -210,17 +220,17 @@ const Entregar = () => {
             id="nombreReceptor"
             required
             value={nombreReceptor}
-            onChange={handleNombreReceptorChange}
+            onChange={handleNombreChange}
           />
           {itemsSugeridos.length > 0 && (
             <ul className="list-group">
               {itemsSugeridos.map((usuario) => (
                 <li
-                  key={usuario.ID_usuarioE}
+                  key={usuario.id_usuarioe}
                   className="list-group-item"
                   onClick={() => seleccionarUsuario(usuario)}
                 >
-                  {usuario.nombre_usuarioE}
+                  {usuario.nombre_usuario}
                 </li>
               ))}
             </ul>
@@ -228,7 +238,7 @@ const Entregar = () => {
         </div>
 
         <div className="col-12 d-md-flex justify-content-md-end">
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" disabled={!formularioValido}>
             <FaDolly className="me-2" />
             Entregar
           </button>
